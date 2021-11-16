@@ -120,7 +120,7 @@ class BIN_Interaction_Flat(nn.Sequential):
         f = self.icnn(i_v)
         f = f.view(int(self.batch_size / self.gpus), -1)
         score = self.decoder(f)
-        return score
+        return score, i_v
 
 
 # help classes

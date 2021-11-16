@@ -209,7 +209,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-b",
         "--batch-size",
-        default=16,
+        default=32,
         type=int,
         metavar="N",
         help="mini-batch size (default: 16), this is the total "

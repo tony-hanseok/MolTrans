@@ -42,7 +42,7 @@ def protein2emb_encoder(x):
         i = i1[:max_p]
         input_mask = [1] * max_p
 
-    return i, np.asarray(input_mask)
+    return i, np.asarray(input_mask), " ".join(t1)
 
 
 def drug2emb_encoder(x):
@@ -64,7 +64,7 @@ def drug2emb_encoder(x):
         i = i1[:max_d]
         input_mask = [1] * max_d
 
-    return i, np.asarray(input_mask)
+    return i, np.asarray(input_mask), " ".join(t1)
 
 
 class BinDataset(data.Dataset):
@@ -86,11 +86,11 @@ class BinDataset(data.Dataset):
         d = self.df.iloc[index]["SMILES"]
         p = self.df.iloc[index]["Target Sequence"]
 
-        d_v, input_mask_d = drug2emb_encoder(d)
-        p_v, input_mask_p = protein2emb_encoder(p)
+        d_v, input_mask_d, d_t = drug2emb_encoder(d)
+        p_v, input_mask_p, p_t = protein2emb_encoder(p)
 
         y = self.labels[index]
-        return d_v, p_v, input_mask_d, input_mask_p, y
+        return d_v, p_v, input_mask_d, input_mask_p, d_t, p_t, y
 
 
 class BinDrugDataset(data.Dataset):
@@ -101,7 +101,7 @@ class BinDrugDataset(data.Dataset):
         with open(drug_fname, "r") as f:
             self.smiles = f.read().split("\n")
 
-        self.p_v, self.input_mask_p = protein2emb_encoder(protein)
+        self.p_v, self.input_mask_p, self.p_t = protein2emb_encoder(protein)
 
     def __len__(self):
         "Denotes the total number of samples"
@@ -112,10 +112,10 @@ class BinDrugDataset(data.Dataset):
         # Select sample
         d = self.smiles[index]
 
-        d_v, input_mask_d = drug2emb_encoder(d)
-        p_v, input_mask_p = self.p_v, self.input_mask_p
+        d_v, input_mask_d, d_t = drug2emb_encoder(d)
+        p_v, input_mask_p, p_t = self.p_v, self.input_mask_p, self.p_t
 
-        return d_v, p_v, input_mask_d, input_mask_p, d
+        return d_v, p_v, input_mask_d, input_mask_p, d_t, p_t, d
 
 
 class BinProteinDataset(data.Dataset):
@@ -137,7 +137,7 @@ class BinProteinDataset(data.Dataset):
         # Select sample
         p = self.prots[index]
 
-        d_v, input_mask_d = self.d_v, self.input_mask_d
-        p_v, input_mask_p = protein2emb_encoder(p)
+        d_v, input_mask_d, d_t = self.d_v, self.input_mask_d
+        p_v, input_mask_p, p_t = protein2emb_encoder(p)
 
-        return d_v, p_v, input_mask_d, input_mask_p, p
+        return d_v, p_v, input_mask_d, input_mask_p, d_t, p_t, p
